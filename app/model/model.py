@@ -56,13 +56,13 @@ def predict_pipeline(category, total_funding, country_code, total_funding_rounds
     X_train_country = X_train.country_code
     X_train_nums = X_train.drop(columns=['category_list','country_code'])
 
-    X_dev_text = X_dev.category_list
-    X_dev_country = X_dev.country_code
-    X_dev_nums = X_dev.drop(columns=['category_list','country_code'])
+#     X_dev_text = X_dev.category_list
+#     X_dev_country = X_dev.country_code
+#     X_dev_nums = X_dev.drop(columns=['category_list','country_code'])
 
-    X_test_text = X_test.category_list
-    X_test_country = X_test.country_code
-    X_test_nums = X_test.drop(columns=['category_list','country_code'])
+#     X_test_text = X_test.category_list
+#     X_test_country = X_test.country_code
+#     X_test_nums = X_test.drop(columns=['category_list','country_code'])
 
     # encode text feature
     X_train.category_list = X_train.category_list.astype(str)
@@ -70,36 +70,29 @@ def predict_pipeline(category, total_funding, country_code, total_funding_rounds
     vectorizer1.fit(X_train.category_list)
     X_train_text = vectorizer1.transform(X_train.category_list)
 
-    X_dev_text = vectorizer1.transform(X_dev.category_list)
-    X_test_text = vectorizer1.transform(X_test.category_list)
+#     X_dev_text = vectorizer1.transform(X_dev.category_list)
+#     X_test_text = vectorizer1.transform(X_test.category_list)
     # encode categorical feature
     X_train.country_code= X_train.country_code.astype(str)
     vectorizer2 = CountVectorizer(min_df=1)
     vectorizer2.fit(X_train.category_list)
     X_train_country = vectorizer2.transform(X_train.country_code)
 
-    X_dev_country = vectorizer2.transform(X_dev.country_code)
-    X_test_country = vectorizer2.transform(X_test.country_code)
+#     X_dev_country = vectorizer2.transform(X_dev.country_code)
+#     X_test_country = vectorizer2.transform(X_test.country_code)
 
     
     scaler = sklearn.preprocessing.StandardScaler()
     scaler.fit(X_train_nums)
     X_train_nums = scaler.transform(X_train_nums)
-    X_dev_nums = scaler.transform(X_dev_nums)
-    X_test_nums = scaler.transform(X_test_nums)
-    X_test_con = hstack([X_test_nums, X_test_country, X_test_text])
+#     X_dev_nums = scaler.transform(X_dev_nums)
+#     X_test_nums = scaler.transform(X_test_nums)
+    X_train_con = hstack([X_train_nums, X_train_country, X_train_text])
 
- 
-
-    
-    
-    
-    
-    
 
     # Make a prediction using the loaded model
-    prediction = model.predict([feature_vector])[0]
     feature_vector = X_test_con
+    prediction = model.predict([feature_vector])[0]
     
     
     # Return the prediction as 1 or 0

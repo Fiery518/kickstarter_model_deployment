@@ -15,7 +15,7 @@ def preprocess_date(date_string):
     return utc_date.strftime("%Y-%m-%d")
 
 # ALSO CHANGE THE NAME OF THE FILE HERE SHREYAS
-with open(f"{BASE_DIR}/trained_pipeline-{__version__}.pkl","rb") as f:
+with open(f"{BASE_DIR}/trained_pipeline-1.0.0.pkl","rb") as f:
     model = pickle.load(f)
     
 result = ["A good company", "Will likely not survive"]

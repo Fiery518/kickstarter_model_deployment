@@ -29,12 +29,7 @@ def predict_pipeline(category, total_funding, country_code, total_funding_rounds
     #Mantej, parameters are matching with the X train - Same order
 
     
-    category = input("Enter category: ")
-    total_funding = float(input("Enter total funding: "))
-    country_code = input("Enter country code: ")
-    total_funding_rounds = int(input("Enter total funding rounds: "))
-    first_funding_date = input("Enter first funding date (YYYY-MM-DD): ")
-    last_funding_date = input("Enter last funding date (YYYY-MM-DD): ")
+    
 
     processed_first_funding_date = preprocess_date(first_funding_date)
     processed_last_funding_date = preprocess_date(last_funding_date)
@@ -49,45 +44,51 @@ def predict_pipeline(category, total_funding, country_code, total_funding_rounds
     'first_funding_date': [processed_first_funding_date],
     'last_funding_date': [processed_last_funding_date]
 
-    df = pd.DataFrame(data)
-    feature_vector = X_test_con
+    }
+
+    X_train = pd.DataFrame(data)
+    
 
     #I found this code snipped through tutorial and chatgpt- CHECK this commented section @mantej if this is needed: 
-    """
-    # Assuming you have already processed X_test_nums, X_test_country, and X_test_text
+    ### separate the 3 tpye of features ###
+    
+    X_train_text = X_train.category_list
+    X_train_country = X_train.country_code
+    X_train_nums = X_train.drop(columns=['category_list','country_code'])
 
-    # Concatenate the processed numeric features
-    X_test_nums_processed = X_test_nums
+    X_dev_text = X_dev.category_list
+    X_dev_country = X_dev.country_code
+    X_dev_nums = X_dev.drop(columns=['category_list','country_code'])
 
-    # Concatenate the processed country features
-    X_test_country_processed = X_test_country
+    X_test_text = X_test.category_list
+    X_test_country = X_test.country_code
+    X_test_nums = X_test.drop(columns=['category_list','country_code'])
 
-    # Concatenate the processed text features
-    X_test_text_processed = X_test_text
+    # encode text feature
+    X_train.category_list = X_train.category_list.astype(str)
+    vectorizer1 = CountVectorizer(min_df=5)
+    vectorizer1.fit(X_train.category_list)
+    X_train_text = vectorizer1.transform(X_train.category_list)
 
-    # Assuming the processed DataFrame is stored in df
-    # Preprocess the 'category' column to match the format of X_test_con
-    df['category'] = df['category'].str.lower()
+    X_dev_text = vectorizer1.transform(X_dev.category_list)
+    X_test_text = vectorizer1.transform(X_test.category_list)
+    # encode categorical feature
+    X_train.country_code= X_train.country_code.astype(str)
+    vectorizer2 = CountVectorizer(min_df=1)
+    vectorizer2.fit(X_train.category_list)
+    X_train_country = vectorizer2.transform(X_train.country_code)
 
-    # Preprocess the 'total_funding' column (e.g., scaling or normalization) to match the format of X_test_con
-    df['total_funding'] = df['total_funding']  # Apply your preprocessing steps here
+    X_dev_country = vectorizer2.transform(X_dev.country_code)
+    X_test_country = vectorizer2.transform(X_test.country_code)
 
-    # Preprocess the 'country_code' column to match the format of X_test_con
-    df['country_code'] = df['country_code']  # Apply your preprocessing steps here
+    
+    scaler = sklearn.preprocessing.StandardScaler()
+    scaler.fit(X_train_nums)
+    X_train_nums = scaler.transform(X_train_nums)
+    X_dev_nums = scaler.transform(X_dev_nums)
+    X_test_nums = scaler.transform(X_test_nums)
+    X_test_con = hstack([X_test_nums, X_test_country, X_test_text])
 
-    # Preprocess the 'total_funding_rounds' column (e.g., scaling or normalization) to match the format of X_test_con
-    df['total_funding_rounds'] = df['total_funding_rounds']  # Apply your preprocessing steps here
-
-    # Preprocess the 'first_funding_date' column to match the format of X_test_con
-    df['first_funding_date'] = preprocess_date(df['first_funding_date'])
-
-    # Preprocess the 'last_funding_date' column to match the format of X_test_con
-    df['last_funding_date'] = preprocess_date(df['last_funding_date'])
-
-    # Concatenate all the processed features
-    feature_vector = hstack([X_test_nums_processed, X_test_country_processed, X_test_text_processed])
-    """
-}
  
 
     
@@ -98,6 +99,8 @@ def predict_pipeline(category, total_funding, country_code, total_funding_rounds
 
     # Make a prediction using the loaded model
     prediction = model.predict([feature_vector])[0]
-
+    feature_vector = X_test_con
+    
+    
     # Return the prediction as 1 or 0
     return int(prediction)
